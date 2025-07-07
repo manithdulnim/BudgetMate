@@ -16,6 +16,7 @@
             --result-bg: #e9f7ef;
             --result-text: #2e7d32;
             --border-color: #ddd;
+            --error-text: #f44336;
         }
 
         [data-theme="dark"] {
@@ -29,6 +30,7 @@
             --result-bg: #2d3e2d;
             --result-text: #81c784;
             --border-color: #444;
+            --error-text: #ff6b6b;
         }
 
         body {
@@ -139,6 +141,13 @@
             display: none;
         }
 
+        .error {
+            color: var(--error-text);
+            margin-top: 5px;
+            font-size: 0.9em;
+            display: none;
+        }
+
         .footer {
             text-align: center;
             margin-top: 40px;
@@ -210,6 +219,14 @@
         .clear-history:hover {
             background-color: #d32f2f;
         }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -223,21 +240,26 @@
         </h1>
 
         <div class="tabs">
-            <div class="tab active" data-tab="calculator">Calculator</div>
+            <div class="tab active" data-tab="budget">Budget</div>
+            <div class="tab" data-tab="trip">Trip Cost</div>
+            <div class="tab" data-tab="discount">Discount</div>
             <div class="tab" data-tab="history">History</div>
             <div class="tab" data-tab="tips">Tips</div>
         </div>
 
-        <div class="tab-content active" id="calculator">
+        <!-- Budget Calculators -->
+        <div class="tab-content active" id="budget">
             <div class="calculator-section" id="totalCostSection">
                 <h2>Total Cost Calculator</h2>
                 <div class="input-group">
                     <label for="price">Price per Unit (Rs):</label>
-                    <input type="number" id="price" placeholder="Enter price per unit">
+                    <input type="number" id="price" placeholder="Enter price per unit" min="0" step="0.01">
+                    <div class="error" id="priceError">Please enter a valid price</div>
                 </div>
                 <div class="input-group">
                     <label for="quantity">Quantity:</label>
-                    <input type="number" id="quantity" placeholder="Enter quantity">
+                    <input type="number" id="quantity" placeholder="Enter quantity" min="0" step="0.01">
+                    <div class="error" id="quantityError">Please enter a valid quantity</div>
                 </div>
                 <button id="calculateTotal">Calculate Total</button>
                 <div class="result" id="totalResult"></div>
@@ -247,11 +269,13 @@
                 <h2>Unit Price Calculator</h2>
                 <div class="input-group">
                     <label for="totalPrice">Total Price (Rs):</label>
-                    <input type="number" id="totalPrice" placeholder="Enter total price">
+                    <input type="number" id="totalPrice" placeholder="Enter total price" min="0" step="0.01">
+                    <div class="error" id="totalPriceError">Please enter a valid price</div>
                 </div>
                 <div class="input-group">
                     <label for="totalQuantity">Total Quantity:</label>
-                    <input type="number" id="totalQuantity" placeholder="Enter total quantity">
+                    <input type="number" id="totalQuantity" placeholder="Enter total quantity" min="0" step="0.01">
+                    <div class="error" id="totalQuantityError">Please enter a valid quantity</div>
                 </div>
                 <button id="calculateUnit">Calculate Unit Price</button>
                 <div class="result" id="unitResult"></div>
@@ -261,23 +285,67 @@
                 <h2>Savings Calculator</h2>
                 <div class="input-group">
                     <label for="income">Monthly Income (Rs):</label>
-                    <input type="number" id="income" placeholder="Enter your monthly income">
+                    <input type="number" id="income" placeholder="Enter your monthly income" min="0" step="0.01">
+                    <div class="error" id="incomeError">Please enter a valid income</div>
                 </div>
                 <div class="input-group">
                     <label for="expenses">Monthly Expenses (Rs):</label>
-                    <input type="number" id="expenses" placeholder="Enter your monthly expenses">
+                    <input type="number" id="expenses" placeholder="Enter your monthly expenses" min="0" step="0.01">
+                    <div class="error" id="expensesError">Please enter valid expenses</div>
                 </div>
                 <button id="calculateSavings">Calculate Savings</button>
                 <div class="result" id="savingsResult"></div>
             </div>
         </div>
 
+        <!-- Trip Cost Calculator -->
+        <div class="tab-content" id="trip">
+            <div class="calculator-section">
+                <h2>Trip Cost Calculator</h2>
+                <div class="input-group">
+                    <label for="distance">Distance (km):</label>
+                    <input type="number" id="distance" placeholder="e.g. 60" min="0" step="0.1">
+                    <div class="error" id="distanceError">Please enter a valid distance</div>
+                </div>
+                <div class="input-group">
+                    <label for="fuelPrice">Fuel Price (Rs/L):</label>
+                    <input type="number" id="fuelPrice" value="289" min="0" step="0.1">
+                    <div class="error" id="fuelPriceError">Please enter a valid fuel price</div>
+                </div>
+                <button id="calculateTrip">Calculate Trip Cost</button>
+                <div class="result" id="tripResult"></div>
+                <p class="helper-text">Efficiency: 15 km/L • Wear: Rs. 4/km</p>
+            </div>
+        </div>
+
+        <!-- Discount Calculator -->
+        <div class="tab-content" id="discount">
+            <div class="calculator-section">
+                <h2>Discount Calculator</h2>
+                <div class="input-group">
+                    <label for="originalPrice">Original Price (Rs):</label>
+                    <input type="number" id="originalPrice" placeholder="e.g. 3500" min="0" step="0.01">
+                    <div class="error" id="originalPriceError">Please enter a valid price</div>
+                </div>
+                <div class="input-group">
+                    <label for="discountValue">Discount (Rs or %):</label>
+                    <input type="number" id="discountValue" placeholder="e.g. 20 for Rs 20 or 10 for 10%" min="0" step="0.01">
+                    <div class="error" id="discountValueError">Please enter a valid discount</div>
+                </div>
+                <button id="calculateDiscount">Calculate Discount</button>
+                <div class="result" id="discountResult"></div>
+                <p class="helper-text">Tip: If the number you enter is ≤100, we'll treat it as %; otherwise as Rupees.</p>
+            </div>
+        </div>
+
+        <!-- History Tab -->
         <div class="tab-content" id="history">
             <h2>Calculation History</h2>
             <div id="historyList"></div>
             <button class="clear-history" id="clearHistory">Clear History</button>
         </div>
 
+        <!-- Tips Tab -->
         <div class="tab-content" id="tips">
             <h2>Budgeting Tips</h2>
             <div class="calculator-section">
@@ -298,6 +366,16 @@
                     <li>Look for discounts and coupons before making purchases</li>
                     <li>Consider generic brands for similar quality at lower prices</li>
                     <li>Wait 24 hours before making non-essential purchases</li>
+                </ul>
+            </div>
+            <div class="calculator-section">
+                <h3>Travel Savings Tips</h3>
+                <ul>
+                    <li>Maintain proper tire pressure for better fuel efficiency</li>
+                    <li>Avoid aggressive driving to save on fuel costs</li>
+                    <li>Plan routes to minimize distance and avoid traffic</li>
+                    <li>Regular vehicle maintenance reduces long-term costs</li>
+                    <li>Carpool when possible to share trip expenses</li>
                 </ul>
             </div>
         </div>
@@ -353,15 +431,39 @@
             });
         });
 
-        // Calculation functions
-        document.getElementById('calculateTotal').addEventListener('click', () => {
-            const price = parseFloat(document.getElementById('price').value);
-            const quantity = parseFloat(document.getElementById('quantity').value);
-            
-            if (isNaN(price) || isNaN(quantity)) {
-                alert('Please enter valid numbers for both fields');
-                return;
+        // Validation function
+        function validateInput(inputElement, errorElement) {
+            const value = parseFloat(inputElement.value);
+            if (isNaN(value) {
+                errorElement.style.display = 'block';
+                inputElement.style.borderColor = 'var(--error-text)';
+                return false;
+            } else if (value < 0) {
+                errorElement.textContent = 'Value cannot be negative';
+                errorElement.style.display = 'block';
+                inputElement.style.borderColor = 'var(--error-text)';
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                inputElement.style.borderColor = 'var(--border-color)';
+                return true;
             }
+        }
+
+        // Budget Calculators
+        document.getElementById('calculateTotal').addEventListener('click', () => {
+            const priceInput = document.getElementById('price');
+            const quantityInput = document.getElementById('quantity');
+            const priceError = document.getElementById('priceError');
+            const quantityError = document.getElementById('quantityError');
+            
+            const isValidPrice = validateInput(priceInput, priceError);
+            const isValidQuantity = validateInput(quantityInput, quantityError);
+            
+            if (!isValidPrice || !isValidQuantity) return;
+            
+            const price = parseFloat(priceInput.value);
+            const quantity = parseFloat(quantityInput.value);
             
             const total = price * quantity;
             const resultElement = document.getElementById('totalResult');
@@ -372,11 +474,23 @@
         });
 
         document.getElementById('calculateUnit').addEventListener('click', () => {
-            const totalPrice = parseFloat(document.getElementById('totalPrice').value);
-            const totalQuantity = parseFloat(document.getElementById('totalQuantity').value);
+            const totalPriceInput = document.getElementById('totalPrice');
+            const totalQuantityInput = document.getElementById('totalQuantity');
+            const totalPriceError = document.getElementById('totalPriceError');
+            const totalQuantityError = document.getElementById('totalQuantityError');
             
-            if (isNaN(totalPrice) || isNaN(totalQuantity) || totalQuantity === 0) {
-                alert('Please enter valid numbers for both fields (quantity cannot be zero)');
+            const isValidPrice = validateInput(totalPriceInput, totalPriceError);
+            const isValidQuantity = validateInput(totalQuantityInput, totalQuantityError);
+            
+            if (!isValidPrice || !isValidQuantity) return;
+            
+            const totalPrice = parseFloat(totalPriceInput.value);
+            const totalQuantity = parseFloat(totalQuantityInput.value);
+            
+            if (totalQuantity === 0) {
+                totalQuantityError.textContent = 'Quantity cannot be zero';
+                totalQuantityError.style.display = 'block';
+                totalQuantityInput.style.borderColor = 'var(--error-text)';
                 return;
             }
             
@@ -389,13 +503,18 @@
         });
 
         document.getElementById('calculateSavings').addEventListener('click', () => {
-            const income = parseFloat(document.getElementById('income').value);
-            const expenses = parseFloat(document.getElementById('expenses').value);
+            const incomeInput = document.getElementById('income');
+            const expensesInput = document.getElementById('expenses');
+            const incomeError = document.getElementById('incomeError');
+            const expensesError = document.getElementById('expensesError');
             
-            if (isNaN(income) || isNaN(expenses)) {
-                alert('Please enter valid numbers for both fields');
-                return;
-            }
+            const isValidIncome = validateInput(incomeInput, incomeError);
+            const isValidExpenses = validateInput(expensesInput, expensesError);
+            
+            if (!isValidIncome || !isValidExpenses) return;
+            
+            const income = parseFloat(incomeInput.value);
+            const expenses = parseFloat(expensesInput.value);
             
             const savings = income - expenses;
             const savingsPercentage = (savings / income) * 100;
@@ -407,11 +526,75 @@
                 resultElement.style.color = 'var(--result-text)';
             } else {
                 resultElement.textContent = `Monthly Deficit: Rs. ${Math.abs(savings).toFixed(2)} (You're spending ${Math.abs(savingsPercentage).toFixed(1)}% more than you earn!)`;
-                resultElement.style.color = '#f44336';
+                resultElement.style.color = 'var(--error-text)';
             }
             
             resultElement.style.display = 'block';
             addToHistory(`Monthly savings for income Rs.${income} and expenses Rs.${expenses}`, savings);
+        });
+
+        // Trip Cost Calculator
+        document.getElementById('calculateTrip').addEventListener('click', () => {
+            const distanceInput = document.getElementById('distance');
+            const fuelPriceInput = document.getElementById('fuelPrice');
+            const distanceError = document.getElementById('distanceError');
+            const fuelPriceError = document.getElementById('fuelPriceError');
+            
+            const isValidDistance = validateInput(distanceInput, distanceError);
+            const isValidFuelPrice = validateInput(fuelPriceInput, fuelPriceError);
+            
+            if (!isValidDistance || !isValidFuelPrice) return;
+            
+            const distance = parseFloat(distanceInput.value);
+            const fuelPrice = parseFloat(fuelPriceInput.value);
+            const EFF = 15; // km per litre
+            const WEAR = 4; // Rs per km
+
+            const fuelCost = (distance / EFF) * fuelPrice;
+            const wearCost = distance * WEAR;
+            const total = fuelCost + wearCost;
+
+            const resultElement = document.getElementById('tripResult');
+            resultElement.textContent = `Estimated Trip Cost: Rs. ${total.toFixed(2)} (Fuel: Rs. ${fuelCost.toFixed(2)}, Wear: Rs. ${wearCost.toFixed(2)})`;
+            resultElement.style.display = 'block';
+            
+            addToHistory(`Trip cost for ${distance}km at Rs.${fuelPrice}/L`, total);
+        });
+
+        // Discount Calculator
+        document.getElementById('calculateDiscount').addEventListener('click', () => {
+            const originalPriceInput = document.getElementById('originalPrice');
+            const discountValueInput = document.getElementById('discountValue');
+            const originalPriceError = document.getElementById('originalPriceError');
+            const discountValueError = document.getElementById('discountValueError');
+            
+            const isValidPrice = validateInput(originalPriceInput, originalPriceError);
+            const isValidDiscount = validateInput(discountValueInput, discountValueError);
+            
+            if (!isValidPrice || !isValidDiscount) return;
+            
+            const price = parseFloat(originalPriceInput.value);
+            const discountInput = parseFloat(discountValueInput.value);
+
+            // Determine if discount is percentage (<=100) or rupee value
+            let finalPrice;
+            let discountType;
+            
+            if (discountInput <= 100) {
+                finalPrice = price - (price * (discountInput / 100));
+                discountType = `${discountInput}%`;
+            } else {
+                finalPrice = price - discountInput;
+                discountType = `Rs. ${discountInput.toFixed(2)}`;
+            }
+
+            if (finalPrice < 0) finalPrice = 0;
+            
+            const resultElement = document.getElementById('discountResult');
+            resultElement.textContent = `Original: Rs. ${price.toFixed(2)} • Discount: ${discountType}\nFinal Price: Rs. ${finalPrice.toFixed(2)}`;
+            resultElement.style.display = 'block';
+            
+            addToHistory(`Discount applied (${discountType}) to Rs.${price}`, finalPrice);
         });
 
         // History functionality
@@ -442,7 +625,7 @@
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
                 
-                const valueColor = item.value >= 0 ? 'var(--result-text)' : '#f44336';
+                const valueColor = item.value >= 0 ? 'var(--result-text)' : 'var(--error-text)';
                 
                 historyItem.innerHTML = `
                     <div>
@@ -469,15 +652,8 @@
         // Initialize history display
         updateHistoryDisplay();
 
-        // Input validation to prevent negative numbers
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('change', () => {
-                if (input.value < 0) {
-                    input.value = 0;
-                    alert('Negative values are not allowed');
-                }
-            });
-        });
+        // Set default fuel price to current date (as a small enhancement)
+        document.getElementById('fuelPrice').value = '289';
     </script>
 </body>
 </html>
