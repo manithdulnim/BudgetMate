@@ -41,6 +41,7 @@
             margin: 0;
             padding: 20px;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .container {
@@ -50,6 +51,8 @@
             background-color: var(--background-color);
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         h1 {
@@ -63,7 +66,7 @@
         }
 
         .theme-toggle {
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
             background: var(--button-bg);
@@ -76,6 +79,7 @@
             align-items: center;
             gap: 5px;
             transition: background 0.3s;
+            z-index: 1000;
         }
 
         .theme-toggle:hover {
@@ -171,6 +175,8 @@
             display: flex;
             margin-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
+            position: relative;
+            z-index: 2;
         }
 
         .tab {
@@ -178,6 +184,7 @@
             cursor: pointer;
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
+            user-select: none;
         }
 
         .tab.active {
@@ -188,6 +195,8 @@
 
         .tab-content {
             display: none;
+            position: relative;
+            z-index: 1;
         }
 
         .tab-content.active {
@@ -230,11 +239,11 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <button class="theme-toggle" id="themeToggle">
-            <span id="themeIcon">🌙</span> Toggle Theme
-        </button>
+    <button class="theme-toggle" id="themeToggle">
+        <span id="themeIcon">🌙</span> Toggle Theme
+    </button>
 
+    <div class="container">
         <h1>
             <span>BudgetMate</span>
         </h1>
@@ -387,273 +396,283 @@
 
     <script>
         // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const html = document.documentElement;
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const html = document.documentElement;
 
-        // Check for saved theme preference or use preferred color scheme
-        const savedTheme = localStorage.getItem('theme') || 
-                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        html.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
+            // Check for saved theme preference or use preferred color scheme
+            const savedTheme = localStorage.getItem('theme') || 
+                            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            html.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-        });
+            themeToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
 
-        function updateThemeIcon(theme) {
-            themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
-        }
+            function updateThemeIcon(theme) {
+                themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+            }
 
-        // Tab functionality
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
 
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
-                
-                // Update active tab
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Update active content
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === tabId) {
-                        content.classList.add('active');
-                    }
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update active content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === tabId) {
+                            content.classList.add('active');
+                        }
+                    });
                 });
             });
-        });
 
-        // Validation function
-        function validateInput(inputElement, errorElement) {
-            const value = parseFloat(inputElement.value);
-            if (isNaN(value) {
-                errorElement.style.display = 'block';
-                inputElement.style.borderColor = 'var(--error-text)';
-                return false;
-            } else if (value < 0) {
-                errorElement.textContent = 'Value cannot be negative';
-                errorElement.style.display = 'block';
-                inputElement.style.borderColor = 'var(--error-text)';
-                return false;
-            } else {
-                errorElement.style.display = 'none';
-                inputElement.style.borderColor = 'var(--border-color)';
-                return true;
-            }
-        }
-
-        // Budget Calculators
-        document.getElementById('calculateTotal').addEventListener('click', () => {
-            const priceInput = document.getElementById('price');
-            const quantityInput = document.getElementById('quantity');
-            const priceError = document.getElementById('priceError');
-            const quantityError = document.getElementById('quantityError');
-            
-            const isValidPrice = validateInput(priceInput, priceError);
-            const isValidQuantity = validateInput(quantityInput, quantityError);
-            
-            if (!isValidPrice || !isValidQuantity) return;
-            
-            const price = parseFloat(priceInput.value);
-            const quantity = parseFloat(quantityInput.value);
-            
-            const total = price * quantity;
-            const resultElement = document.getElementById('totalResult');
-            resultElement.textContent = `Total Cost: Rs. ${total.toFixed(2)}`;
-            resultElement.style.display = 'block';
-            
-            addToHistory(`Total cost for ${quantity} units at Rs.${price}/unit`, total);
-        });
-
-        document.getElementById('calculateUnit').addEventListener('click', () => {
-            const totalPriceInput = document.getElementById('totalPrice');
-            const totalQuantityInput = document.getElementById('totalQuantity');
-            const totalPriceError = document.getElementById('totalPriceError');
-            const totalQuantityError = document.getElementById('totalQuantityError');
-            
-            const isValidPrice = validateInput(totalPriceInput, totalPriceError);
-            const isValidQuantity = validateInput(totalQuantityInput, totalQuantityError);
-            
-            if (!isValidPrice || !isValidQuantity) return;
-            
-            const totalPrice = parseFloat(totalPriceInput.value);
-            const totalQuantity = parseFloat(totalQuantityInput.value);
-            
-            if (totalQuantity === 0) {
-                totalQuantityError.textContent = 'Quantity cannot be zero';
-                totalQuantityError.style.display = 'block';
-                totalQuantityInput.style.borderColor = 'var(--error-text)';
-                return;
-            }
-            
-            const unitPrice = totalPrice / totalQuantity;
-            const resultElement = document.getElementById('unitResult');
-            resultElement.textContent = `Unit Price: Rs. ${unitPrice.toFixed(2)}`;
-            resultElement.style.display = 'block';
-            
-            addToHistory(`Unit price for ${totalQuantity} items costing Rs.${totalPrice} total`, unitPrice);
-        });
-
-        document.getElementById('calculateSavings').addEventListener('click', () => {
-            const incomeInput = document.getElementById('income');
-            const expensesInput = document.getElementById('expenses');
-            const incomeError = document.getElementById('incomeError');
-            const expensesError = document.getElementById('expensesError');
-            
-            const isValidIncome = validateInput(incomeInput, incomeError);
-            const isValidExpenses = validateInput(expensesInput, expensesError);
-            
-            if (!isValidIncome || !isValidExpenses) return;
-            
-            const income = parseFloat(incomeInput.value);
-            const expenses = parseFloat(expensesInput.value);
-            
-            const savings = income - expenses;
-            const savingsPercentage = (savings / income) * 100;
-            
-            const resultElement = document.getElementById('savingsResult');
-            
-            if (savings >= 0) {
-                resultElement.textContent = `Monthly Savings: Rs. ${savings.toFixed(2)} (${savingsPercentage.toFixed(1)}% of income)`;
-                resultElement.style.color = 'var(--result-text)';
-            } else {
-                resultElement.textContent = `Monthly Deficit: Rs. ${Math.abs(savings).toFixed(2)} (You're spending ${Math.abs(savingsPercentage).toFixed(1)}% more than you earn!)`;
-                resultElement.style.color = 'var(--error-text)';
-            }
-            
-            resultElement.style.display = 'block';
-            addToHistory(`Monthly savings for income Rs.${income} and expenses Rs.${expenses}`, savings);
-        });
-
-        // Trip Cost Calculator
-        document.getElementById('calculateTrip').addEventListener('click', () => {
-            const distanceInput = document.getElementById('distance');
-            const fuelPriceInput = document.getElementById('fuelPrice');
-            const distanceError = document.getElementById('distanceError');
-            const fuelPriceError = document.getElementById('fuelPriceError');
-            
-            const isValidDistance = validateInput(distanceInput, distanceError);
-            const isValidFuelPrice = validateInput(fuelPriceInput, fuelPriceError);
-            
-            if (!isValidDistance || !isValidFuelPrice) return;
-            
-            const distance = parseFloat(distanceInput.value);
-            const fuelPrice = parseFloat(fuelPriceInput.value);
-            const EFF = 15; // km per litre
-            const WEAR = 4; // Rs per km
-
-            const fuelCost = (distance / EFF) * fuelPrice;
-            const wearCost = distance * WEAR;
-            const total = fuelCost + wearCost;
-
-            const resultElement = document.getElementById('tripResult');
-            resultElement.textContent = `Estimated Trip Cost: Rs. ${total.toFixed(2)} (Fuel: Rs. ${fuelCost.toFixed(2)}, Wear: Rs. ${wearCost.toFixed(2)})`;
-            resultElement.style.display = 'block';
-            
-            addToHistory(`Trip cost for ${distance}km at Rs.${fuelPrice}/L`, total);
-        });
-
-        // Discount Calculator
-        document.getElementById('calculateDiscount').addEventListener('click', () => {
-            const originalPriceInput = document.getElementById('originalPrice');
-            const discountValueInput = document.getElementById('discountValue');
-            const originalPriceError = document.getElementById('originalPriceError');
-            const discountValueError = document.getElementById('discountValueError');
-            
-            const isValidPrice = validateInput(originalPriceInput, originalPriceError);
-            const isValidDiscount = validateInput(discountValueInput, discountValueError);
-            
-            if (!isValidPrice || !isValidDiscount) return;
-            
-            const price = parseFloat(originalPriceInput.value);
-            const discountInput = parseFloat(discountValueInput.value);
-
-            // Determine if discount is percentage (<=100) or rupee value
-            let finalPrice;
-            let discountType;
-            
-            if (discountInput <= 100) {
-                finalPrice = price - (price * (discountInput / 100));
-                discountType = `${discountInput}%`;
-            } else {
-                finalPrice = price - discountInput;
-                discountType = `Rs. ${discountInput.toFixed(2)}`;
+            // Validation function
+            function validateInput(inputElement, errorElement) {
+                const value = parseFloat(inputElement.value);
+                if (isNaN(value)) {
+                    errorElement.style.display = 'block';
+                    inputElement.style.borderColor = 'var(--error-text)';
+                    return false;
+                } else if (value < 0) {
+                    errorElement.textContent = 'Value cannot be negative';
+                    errorElement.style.display = 'block';
+                    inputElement.style.borderColor = 'var(--error-text)';
+                    return false;
+                } else {
+                    errorElement.style.display = 'none';
+                    inputElement.style.borderColor = 'var(--border-color)';
+                    return true;
+                }
             }
 
-            if (finalPrice < 0) finalPrice = 0;
-            
-            const resultElement = document.getElementById('discountResult');
-            resultElement.textContent = `Original: Rs. ${price.toFixed(2)} • Discount: ${discountType}\nFinal Price: Rs. ${finalPrice.toFixed(2)}`;
-            resultElement.style.display = 'block';
-            
-            addToHistory(`Discount applied (${discountType}) to Rs.${price}`, finalPrice);
-        });
-
-        // History functionality
-        let calculationHistory = JSON.parse(localStorage.getItem('calculationHistory')) || [];
-
-        function addToHistory(description, value) {
-            const timestamp = new Date().toLocaleString();
-            calculationHistory.unshift({ description, value, timestamp });
-            
-            if (calculationHistory.length > 10) {
-                calculationHistory = calculationHistory.slice(0, 10);
-            }
-            
-            localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
-            updateHistoryDisplay();
-        }
-
-        function updateHistoryDisplay() {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
-            
-            if (calculationHistory.length === 0) {
-                historyList.innerHTML = '<p>No calculations saved yet.</p>';
-                return;
-            }
-            
-            calculationHistory.forEach(item => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
+            // Budget Calculators
+            document.getElementById('calculateTotal').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const priceInput = document.getElementById('price');
+                const quantityInput = document.getElementById('quantity');
+                const priceError = document.getElementById('priceError');
+                const quantityError = document.getElementById('quantityError');
                 
-                const valueColor = item.value >= 0 ? 'var(--result-text)' : 'var(--error-text)';
+                const isValidPrice = validateInput(priceInput, priceError);
+                const isValidQuantity = validateInput(quantityInput, quantityError);
                 
-                historyItem.innerHTML = `
-                    <div>
-                        <strong>${item.description}</strong>
-                        <div class="timestamp">${item.timestamp}</div>
-                    </div>
-                    <div style="color: ${valueColor}">
-                        ${item.value >= 0 ? '+' : ''}${item.value.toFixed(2)}
-                    </div>
-                `;
+                if (!isValidPrice || !isValidQuantity) return;
                 
-                historyList.appendChild(historyItem);
+                const price = parseFloat(priceInput.value);
+                const quantity = parseFloat(quantityInput.value);
+                
+                const total = price * quantity;
+                const resultElement = document.getElementById('totalResult');
+                resultElement.textContent = `Total Cost: Rs. ${total.toFixed(2)}`;
+                resultElement.style.display = 'block';
+                
+                addToHistory(`Total cost for ${quantity} units at Rs.${price}/unit`, total);
             });
-        }
 
-        document.getElementById('clearHistory').addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all history?')) {
-                calculationHistory = [];
-                localStorage.removeItem('calculationHistory');
+            document.getElementById('calculateUnit').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const totalPriceInput = document.getElementById('totalPrice');
+                const totalQuantityInput = document.getElementById('totalQuantity');
+                const totalPriceError = document.getElementById('totalPriceError');
+                const totalQuantityError = document.getElementById('totalQuantityError');
+                
+                const isValidPrice = validateInput(totalPriceInput, totalPriceError);
+                const isValidQuantity = validateInput(totalQuantityInput, totalQuantityError);
+                
+                if (!isValidPrice || !isValidQuantity) return;
+                
+                const totalPrice = parseFloat(totalPriceInput.value);
+                const totalQuantity = parseFloat(totalQuantityInput.value);
+                
+                if (totalQuantity === 0) {
+                    totalQuantityError.textContent = 'Quantity cannot be zero';
+                    totalQuantityError.style.display = 'block';
+                    totalQuantityInput.style.borderColor = 'var(--error-text)';
+                    return;
+                }
+                
+                const unitPrice = totalPrice / totalQuantity;
+                const resultElement = document.getElementById('unitResult');
+                resultElement.textContent = `Unit Price: Rs. ${unitPrice.toFixed(2)}`;
+                resultElement.style.display = 'block';
+                
+                addToHistory(`Unit price for ${totalQuantity} items costing Rs.${totalPrice} total`, unitPrice);
+            });
+
+            document.getElementById('calculateSavings').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const incomeInput = document.getElementById('income');
+                const expensesInput = document.getElementById('expenses');
+                const incomeError = document.getElementById('incomeError');
+                const expensesError = document.getElementById('expensesError');
+                
+                const isValidIncome = validateInput(incomeInput, incomeError);
+                const isValidExpenses = validateInput(expensesInput, expensesError);
+                
+                if (!isValidIncome || !isValidExpenses) return;
+                
+                const income = parseFloat(incomeInput.value);
+                const expenses = parseFloat(expensesInput.value);
+                
+                const savings = income - expenses;
+                const savingsPercentage = (savings / income) * 100;
+                
+                const resultElement = document.getElementById('savingsResult');
+                
+                if (savings >= 0) {
+                    resultElement.textContent = `Monthly Savings: Rs. ${savings.toFixed(2)} (${savingsPercentage.toFixed(1)}% of income)`;
+                    resultElement.style.color = 'var(--result-text)';
+                } else {
+                    resultElement.textContent = `Monthly Deficit: Rs. ${Math.abs(savings).toFixed(2)} (You're spending ${Math.abs(savingsPercentage).toFixed(1)}% more than you earn!)`;
+                    resultElement.style.color = 'var(--error-text)';
+                }
+                
+                resultElement.style.display = 'block';
+                addToHistory(`Monthly savings for income Rs.${income} and expenses Rs.${expenses}`, savings);
+            });
+
+            // Trip Cost Calculator
+            document.getElementById('calculateTrip').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const distanceInput = document.getElementById('distance');
+                const fuelPriceInput = document.getElementById('fuelPrice');
+                const distanceError = document.getElementById('distanceError');
+                const fuelPriceError = document.getElementById('fuelPriceError');
+                
+                const isValidDistance = validateInput(distanceInput, distanceError);
+                const isValidFuelPrice = validateInput(fuelPriceInput, fuelPriceError);
+                
+                if (!isValidDistance || !isValidFuelPrice) return;
+                
+                const distance = parseFloat(distanceInput.value);
+                const fuelPrice = parseFloat(fuelPriceInput.value);
+                const EFF = 15; // km per litre
+                const WEAR = 4; // Rs per km
+
+                const fuelCost = (distance / EFF) * fuelPrice;
+                const wearCost = distance * WEAR;
+                const total = fuelCost + wearCost;
+
+                const resultElement = document.getElementById('tripResult');
+                resultElement.textContent = `Estimated Trip Cost: Rs. ${total.toFixed(2)} (Fuel: Rs. ${fuelCost.toFixed(2)}, Wear: Rs. ${wearCost.toFixed(2)})`;
+                resultElement.style.display = 'block';
+                
+                addToHistory(`Trip cost for ${distance}km at Rs.${fuelPrice}/L`, total);
+            });
+
+            // Discount Calculator
+            document.getElementById('calculateDiscount').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const originalPriceInput = document.getElementById('originalPrice');
+                const discountValueInput = document.getElementById('discountValue');
+                const originalPriceError = document.getElementById('originalPriceError');
+                const discountValueError = document.getElementById('discountValueError');
+                
+                const isValidPrice = validateInput(originalPriceInput, originalPriceError);
+                const isValidDiscount = validateInput(discountValueInput, discountValueError);
+                
+                if (!isValidPrice || !isValidDiscount) return;
+                
+                const price = parseFloat(originalPriceInput.value);
+                const discountInput = parseFloat(discountValueInput.value);
+
+                // Determine if discount is percentage (<=100) or rupee value
+                let finalPrice;
+                let discountType;
+                
+                if (discountInput <= 100) {
+                    finalPrice = price - (price * (discountInput / 100));
+                    discountType = `${discountInput}%`;
+                } else {
+                    finalPrice = price - discountInput;
+                    discountType = `Rs. ${discountInput.toFixed(2)}`;
+                }
+
+                if (finalPrice < 0) finalPrice = 0;
+                
+                const resultElement = document.getElementById('discountResult');
+                resultElement.textContent = `Original: Rs. ${price.toFixed(2)} • Discount: ${discountType}\nFinal Price: Rs. ${finalPrice.toFixed(2)}`;
+                resultElement.style.display = 'block';
+                
+                addToHistory(`Discount applied (${discountType}) to Rs.${price}`, finalPrice);
+            });
+
+            // History functionality
+            let calculationHistory = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+
+            function addToHistory(description, value) {
+                const timestamp = new Date().toLocaleString();
+                calculationHistory.unshift({ description, value, timestamp });
+                
+                if (calculationHistory.length > 10) {
+                    calculationHistory = calculationHistory.slice(0, 10);
+                }
+                
+                localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
                 updateHistoryDisplay();
             }
+
+            function updateHistoryDisplay() {
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '';
+                
+                if (calculationHistory.length === 0) {
+                    historyList.innerHTML = '<p>No calculations saved yet.</p>';
+                    return;
+                }
+                
+                calculationHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const valueColor = item.value >= 0 ? 'var(--result-text)' : 'var(--error-text)';
+                    
+                    historyItem.innerHTML = `
+                        <div>
+                            <strong>${item.description}</strong>
+                            <div class="timestamp">${item.timestamp}</div>
+                        </div>
+                        <div style="color: ${valueColor}">
+                            ${item.value >= 0 ? '+' : ''}${item.value.toFixed(2)}
+                        </div>
+                    `;
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+
+            document.getElementById('clearHistory').addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (confirm('Are you sure you want to clear all history?')) {
+                    calculationHistory = [];
+                    localStorage.removeItem('calculationHistory');
+                    updateHistoryDisplay();
+                }
+            });
+
+            // Initialize history display
+            updateHistoryDisplay();
+
+            // Set default fuel price to current date (as a small enhancement)
+            document.getElementById('fuelPrice').value = '289';
         });
-
-        // Initialize history display
-        updateHistoryDisplay();
-
-        // Set default fuel price to current date (as a small enhancement)
-        document.getElementById('fuelPrice').value = '289';
     </script>
 </body>
 </html>
