@@ -1,235 +1,483 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Utility Cost Calculators</title>
-  <!-- =====================  BASIC STYLES  ===================== -->
-  <style>
-    /*  Root tweaks for better scalability  */
-    :root {
-      --brand-blue: #2e86de;
-      --brand-blue-dark: #1e6abf;
-      --radius: 12px;
-      --shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudgetMate</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --input-bg: #f5f5f5;
+            --button-bg: #4a6fa5;
+            --button-hover: #166088;
+            --result-bg: #e9f7ef;
+            --result-text: #2e7d32;
+            --border-color: #ddd;
+        }
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
+        [data-theme="dark"] {
+            --primary-color: #6b8cae;
+            --secondary-color: #4a6fa5;
+            --background-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --input-bg: #2d2d2d;
+            --button-bg: #6b8cae;
+            --button-hover: #4a6fa5;
+            --result-bg: #2d3e2d;
+            --result-text: #81c784;
+            --border-color: #444;
+        }
 
-    body {
-      margin: 0;
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-      background: #f1f1f1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 1.5rem;
-      line-height: 1.5;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
 
-    /*  Card wrapper  */
-    .card {
-      width: 100%;
-      max-width: 420px;
-      background: #fff;
-      padding: 2rem 1.75rem;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--background-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-    h1 {
-      margin: 0 0 1.5rem;
-      text-align: center;
-      font-size: 1.8rem;
-      color: #222;
-    }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
 
-    /*  Tab bar  */
-    .tabs {
-      display: flex;
-      gap: .5rem;
-      margin-bottom: 1.5rem;
-    }
-    .tab {
-      flex: 1;
-      padding: .75rem .5rem;
-      text-align: center;
-      border: 2px solid var(--brand-blue);
-      border-radius: var(--radius);
-      background: #fff;
-      color: var(--brand-blue);
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .tab[aria-selected="true"] {
-      background: var(--brand-blue);
-      color: #fff;
-    }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.3s;
+        }
 
-    /*  Form elements  */
-    label {
-      display: block;
-      font-size: 1rem;
-      color: #444;
-      margin-bottom: .35rem;
-    }
+        .theme-toggle:hover {
+            background: var(--button-hover);
+        }
 
-    input[type="number"] {
-      width: 100%;
-      padding: .75rem;
-      border: 1px solid #ccc;
-      border-radius: var(--radius);
-      font-size: 1rem;
-      margin-bottom: 1rem;
-    }
+        .calculator-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: var(--input-bg);
+        }
 
-    button {
-      width: 100%;
-      padding: .85rem;
-      border: none;
-      border-radius: var(--radius);
-      background: var(--brand-blue);
-      color: #fff;
-      font-size: 1.05rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    button:hover {
-      background: var(--brand-blue-dark);
-    }
+        .calculator-section h2 {
+            margin-top: 0;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
 
-    .result {
-      margin-top: 1.25rem;
-      font-size: 1.25rem;
-      font-weight: 600;
-      text-align: center;
-      color: #222;
-    }
+        .input-group {
+            margin-bottom: 15px;
+        }
 
-    .helper {
-      margin-top: 1rem;
-      font-size: .85rem;
-      text-align: center;
-      color: #777;
-    }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
 
-    /*  Hide inactive panels for accessibility  */
-    .panel[hidden] {
-      display: none;
-    }
-  </style>
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: var(--result-bg);
+            color: var(--result-text);
+            font-weight: 600;
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-color);
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        .heart {
+            color: #ff5252;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .clear-history {
+            margin-top: 10px;
+            background-color: #f44336;
+        }
+
+        .clear-history:hover {
+            background-color: #d32f2f;
+        }
+    </style>
 </head>
 <body>
-  <main class="card" role="main">
-    <h1>Utility Cost Calculators</h1>
+    <div class="container">
+        <button class="theme-toggle" id="themeToggle">
+            <span id="themeIcon">🌙</span> Toggle Theme
+        </button>
 
-    <!-- ============  TAB BAR  ============ -->
-    <div class="tabs" role="tablist">
-      <button id="trip-tab" class="tab" role="tab" aria-selected="true" aria-controls="trip-panel">Trip Cost</button>
-      <button id="disc-tab" class="tab" role="tab" aria-selected="false" aria-controls="disc-panel">Discount</button>
+        <h1>
+            <span>BudgetMate</span>
+        </h1>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="calculator">Calculator</div>
+            <div class="tab" data-tab="history">History</div>
+            <div class="tab" data-tab="tips">Tips</div>
+        </div>
+
+        <div class="tab-content active" id="calculator">
+            <div class="calculator-section" id="totalCostSection">
+                <h2>Total Cost Calculator</h2>
+                <div class="input-group">
+                    <label for="price">Price per Unit (Rs):</label>
+                    <input type="number" id="price" placeholder="Enter price per unit">
+                </div>
+                <div class="input-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" placeholder="Enter quantity">
+                </div>
+                <button id="calculateTotal">Calculate Total</button>
+                <div class="result" id="totalResult"></div>
+            </div>
+
+            <div class="calculator-section" id="unitPriceSection">
+                <h2>Unit Price Calculator</h2>
+                <div class="input-group">
+                    <label for="totalPrice">Total Price (Rs):</label>
+                    <input type="number" id="totalPrice" placeholder="Enter total price">
+                </div>
+                <div class="input-group">
+                    <label for="totalQuantity">Total Quantity:</label>
+                    <input type="number" id="totalQuantity" placeholder="Enter total quantity">
+                </div>
+                <button id="calculateUnit">Calculate Unit Price</button>
+                <div class="result" id="unitResult"></div>
+            </div>
+
+            <div class="calculator-section" id="savingsSection">
+                <h2>Savings Calculator</h2>
+                <div class="input-group">
+                    <label for="income">Monthly Income (Rs):</label>
+                    <input type="number" id="income" placeholder="Enter your monthly income">
+                </div>
+                <div class="input-group">
+                    <label for="expenses">Monthly Expenses (Rs):</label>
+                    <input type="number" id="expenses" placeholder="Enter your monthly expenses">
+                </div>
+                <button id="calculateSavings">Calculate Savings</button>
+                <div class="result" id="savingsResult"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="history">
+            <h2>Calculation History</h2>
+            <div id="historyList"></div>
+            <button class="clear-history" id="clearHistory">Clear History</button>
+        </div>
+
+        <div class="tab-content" id="tips">
+            <h2>Budgeting Tips</h2>
+            <div class="calculator-section">
+                <h3>Smart Budgeting Strategies</h3>
+                <ul>
+                    <li>Track all your expenses for a month to understand spending patterns</li>
+                    <li>Follow the 50/30/20 rule: 50% needs, 30% wants, 20% savings</li>
+                    <li>Automate your savings to pay yourself first</li>
+                    <li>Review and adjust your budget monthly</li>
+                    <li>Use cash for discretionary spending to limit overspending</li>
+                </ul>
+            </div>
+            <div class="calculator-section">
+                <h3>Saving Money on Purchases</h3>
+                <ul>
+                    <li>Always compare unit prices when shopping</li>
+                    <li>Buy in bulk for items you use frequently</li>
+                    <li>Look for discounts and coupons before making purchases</li>
+                    <li>Consider generic brands for similar quality at lower prices</li>
+                    <li>Wait 24 hours before making non-essential purchases</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            Made with <span class="heart">❤</span> by Manith
+        </div>
     </div>
 
-    <!-- ============  TRIP CALCULATOR  ============ -->
-    <section id="trip-panel" class="panel" role="tabpanel">
-      <label for="distance">Distance (km)</label>
-      <input type="number" id="distance" placeholder="e.g. 60" min="1" />
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
 
-      <label for="fuelPrice">Fuel Price (Rs/L)</label>
-      <input type="number" id="fuelPrice" value="289" min="50" step="0.1" />
+        // Check for saved theme preference or use preferred color scheme
+        const savedTheme = localStorage.getItem('theme') || 
+                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        html.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
 
-      <button id="trip-calc-btn">Calculate</button>
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
 
-      <div id="trip-result" class="result" aria-live="polite"></div>
-      <p class="helper">Efficiency: 15 km/L &bull; Wear: Rs. 4/km</p>
-    </section>
+        function updateThemeIcon(theme) {
+            themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+        }
 
-    <!-- ============  DISCOUNT CALCULATOR  ============ -->
-    <section id="disc-panel" class="panel" role="tabpanel" hidden>
-      <label for="price">Original Price (Rs.)</label>
-      <input type="number" id="price" placeholder="e.g. 3500" min="0" step="0.01" />
+        // Tab functionality
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
 
-      <label for="discount">Discount (Rs. or %)</label>
-      <input type="number" id="discount" placeholder="enter 20 for Rs 20 or 10 for 10%" min="0" step="0.01" />
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update active content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === tabId) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
 
-      <button id="disc-calc-btn">Calculate</button>
+        // Calculation functions
+        document.getElementById('calculateTotal').addEventListener('click', () => {
+            const price = parseFloat(document.getElementById('price').value);
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            
+            if (isNaN(price) || isNaN(quantity)) {
+                alert('Please enter valid numbers for both fields');
+                return;
+            }
+            
+            const total = price * quantity;
+            const resultElement = document.getElementById('totalResult');
+            resultElement.textContent = `Total Cost: Rs. ${total.toFixed(2)}`;
+            resultElement.style.display = 'block';
+            
+            addToHistory(`Total cost for ${quantity} units at Rs.${price}/unit`, total);
+        });
 
-      <div id="disc-result" class="result" aria-live="polite"></div>
-      <p class="helper">Tip: If the number you enter is ≤100, we'll treat it as %; otherwise as Rupees.</p>
-    </section>
-  </main>
+        document.getElementById('calculateUnit').addEventListener('click', () => {
+            const totalPrice = parseFloat(document.getElementById('totalPrice').value);
+            const totalQuantity = parseFloat(document.getElementById('totalQuantity').value);
+            
+            if (isNaN(totalPrice) || isNaN(totalQuantity) || totalQuantity === 0) {
+                alert('Please enter valid numbers for both fields (quantity cannot be zero)');
+                return;
+            }
+            
+            const unitPrice = totalPrice / totalQuantity;
+            const resultElement = document.getElementById('unitResult');
+            resultElement.textContent = `Unit Price: Rs. ${unitPrice.toFixed(2)}`;
+            resultElement.style.display = 'block';
+            
+            addToHistory(`Unit price for ${totalQuantity} items costing Rs.${totalPrice} total`, unitPrice);
+        });
 
-  <!-- =====================  JAVASCRIPT  ===================== -->
-  <script>
-    // =====  Tab switching  =====
-    const tabs = document.querySelectorAll('.tab');
-    const panels = {
-      trip: document.getElementById('trip-panel'),
-      disc: document.getElementById('disc-panel')
-    };
+        document.getElementById('calculateSavings').addEventListener('click', () => {
+            const income = parseFloat(document.getElementById('income').value);
+            const expenses = parseFloat(document.getElementById('expenses').value);
+            
+            if (isNaN(income) || isNaN(expenses)) {
+                alert('Please enter valid numbers for both fields');
+                return;
+            }
+            
+            const savings = income - expenses;
+            const savingsPercentage = (savings / income) * 100;
+            
+            const resultElement = document.getElementById('savingsResult');
+            
+            if (savings >= 0) {
+                resultElement.textContent = `Monthly Savings: Rs. ${savings.toFixed(2)} (${savingsPercentage.toFixed(1)}% of income)`;
+                resultElement.style.color = 'var(--result-text)';
+            } else {
+                resultElement.textContent = `Monthly Deficit: Rs. ${Math.abs(savings).toFixed(2)} (You're spending ${Math.abs(savingsPercentage).toFixed(1)}% more than you earn!)`;
+                resultElement.style.color = '#f44336';
+            }
+            
+            resultElement.style.display = 'block';
+            addToHistory(`Monthly savings for income Rs.${income} and expenses Rs.${expenses}`, savings);
+        });
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        // update aria-selected
-        tabs.forEach(t => t.setAttribute('aria-selected', false));
-        tab.setAttribute('aria-selected', true);
+        // History functionality
+        let calculationHistory = JSON.parse(localStorage.getItem('calculationHistory')) || [];
 
-        // show / hide panels
-        Object.values(panels).forEach(p => p.hidden = true);
-        document.getElementById(tab.getAttribute('aria-controls')).hidden = false;
-      });
-    });
+        function addToHistory(description, value) {
+            const timestamp = new Date().toLocaleString();
+            calculationHistory.unshift({ description, value, timestamp });
+            
+            if (calculationHistory.length > 10) {
+                calculationHistory = calculationHistory.slice(0, 10);
+            }
+            
+            localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+            updateHistoryDisplay();
+        }
 
-    // =====  Trip cost calculator  =====
-    const tripBtn = document.getElementById('trip-calc-btn');
-    const tripRes = document.getElementById('trip-result');
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = '<p>No calculations saved yet.</p>';
+                return;
+            }
+            
+            calculationHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const valueColor = item.value >= 0 ? 'var(--result-text)' : '#f44336';
+                
+                historyItem.innerHTML = `
+                    <div>
+                        <strong>${item.description}</strong>
+                        <div class="timestamp">${item.timestamp}</div>
+                    </div>
+                    <div style="color: ${valueColor}">
+                        ${item.value >= 0 ? '+' : ''}${item.value.toFixed(2)}
+                    </div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+        }
 
-    tripBtn.addEventListener('click', () => {
-      const distance = parseFloat(document.getElementById('distance').value);
-      const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
-      const EFF = 15; // km per litre
-      const WEAR = 4; // Rs per km
+        document.getElementById('clearHistory').addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all history?')) {
+                calculationHistory = [];
+                localStorage.removeItem('calculationHistory');
+                updateHistoryDisplay();
+            }
+        });
 
-      if (!distance || distance <= 0 || !fuelPrice || fuelPrice <= 0) {
-        tripRes.textContent = 'Please enter valid values.';
-        return;
-      }
+        // Initialize history display
+        updateHistoryDisplay();
 
-      const fuelCost = (distance / EFF) * fuelPrice;
-      const wearCost = distance * WEAR;
-      const total = fuelCost + wearCost;
-
-      tripRes.textContent = `Estimated Cost: Rs. ${total.toFixed(2)}`;
-    });
-
-    // =====  Discount calculator  =====
-    const discBtn = document.getElementById('disc-calc-btn');
-    const discRes = document.getElementById('disc-result');
-
-    discBtn.addEventListener('click', () => {
-      const price = parseFloat(document.getElementById('price').value);
-      const discountInput = parseFloat(document.getElementById('discount').value);
-
-      if (!price || price <= 0 || isNaN(discountInput) || discountInput < 0) {
-        discRes.textContent = 'Please enter valid values.';
-        return;
-      }
-
-      // Determine if discount is percentage (<=100) or rupee value
-      let finalPrice;
-      if (discountInput <= 100) {
-        finalPrice = price - (price * (discountInput / 100));
-      } else {
-        finalPrice = price - discountInput;
-      }
-
-      if (finalPrice < 0) finalPrice = 0;
-      discRes.textContent = `You pay: Rs. ${finalPrice.toFixed(2)}`;
-    });
-  </script>
+        // Input validation to prevent negative numbers
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('change', () => {
+                if (input.value < 0) {
+                    input.value = 0;
+                    alert('Negative values are not allowed');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
